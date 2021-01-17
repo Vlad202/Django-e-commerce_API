@@ -1,3 +1,4 @@
 *.sqlite3
 images/
 __pycache__/
+eApp/secret.py
