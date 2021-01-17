@@ -30,7 +30,7 @@ class Product(models.Model):
         self.cost = round(self.cost, 2)
         super(Product, self).save(*args, **kwargs)
     def __str__(self):
-        return self.name
+        return '{} - {}'.format(self.name, self.pk)
 
 
 class Sizes(models.Model):
