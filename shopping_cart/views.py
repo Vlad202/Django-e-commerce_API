@@ -1,6 +1,6 @@
 from rest_framework import generics
 from rest_framework.views import APIView
-from .serializers import CartItemSerializer
+from .serializers import CartItemSerializer, CartListSerializer
 from .models import CartItem
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -12,13 +12,27 @@ RESPONSES = {
     'false': Response({'success': False})
 }
 
-class CartItemCreateView(APIView):
+class GetDataCardView(generics.ListAPIView):
+    queryset = CartItem.objects.all()
+    serializer_class = CartListSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        cart = self.queryset.filter(user=request.user)
+        serializer = CartListSerializer(cart, many=True)
+        return Response(serializer.data)
+        # return Response(serializer.errors)
+
+class CartItemCreateView(GetDataCardView):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
     permission_classes = (IsAuthenticated, )
 
     def post(self, request):
-        request.data._mutable = True
+        try:
+            request.data._mutable = True
+        except: 
+            pass
         request.data['user'] = request.user.pk
         try:
             model_is_created = self.queryset.filter(order_item=request.data['order_item']).first()
@@ -28,13 +42,13 @@ class CartItemCreateView(APIView):
             try:
                 model_is_created.quantity = request.data['quantity']
                 model_is_created.save()
-                return RESPONSES['true']
+                return GetDataCardView.get(self, request)
             except:
                 return RESPONSES['false']
         serializer = CartItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return GetDataCardView.get(self, request)
         return Response(serializer.errors)
 
 class DeleteItemFromCart(APIView):

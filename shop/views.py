@@ -24,10 +24,12 @@ class ImageView(APIView):
 class Categories(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (AllowAny, )
 
 class Products(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = (AllowAny, )
 
     def get(self, request, category):
         category_key = Category.objects.filter(category_name=category).first()
@@ -38,6 +40,7 @@ class Products(generics.ListAPIView):
 class NewProducts(generics.ListAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = (AllowAny, )
 
     def get(self, request):
         products = Product.objects.all()[::-1][:6]
@@ -47,6 +50,7 @@ class NewProducts(generics.ListAPIView):
 class ProductsDetails(APIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = (AllowAny, )
 
     def get(self, request, product_id):
         product = Product.objects.filter(pk=product_id).first()
@@ -59,7 +63,7 @@ class ProductsDetails(APIView):
 class MakeOrder(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny, )
 
     def post(self, request):
         unique_id = get_random_string(length=48)
